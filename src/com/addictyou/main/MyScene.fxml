@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="482.0" prefWidth="899.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.addictyou.controller.OnlineTimeTracker">
+   <children>
+      <Label layoutX="211.0" layoutY="22.0" prefHeight="48.0" prefWidth="506.0" style="-fx-font-weight: bold;" text="Online Players Tracking" textAlignment="CENTER">
+         <font>
+            <Font name="Times New Roman" size="36.0" />
+         </font>
+         <effect>
+            <InnerShadow color="#ab0c0c" />
+         </effect>
+      </Label>
+      <Button layoutX="139.0" layoutY="157.0" mnemonicParsing="false" onAction="#onStartClick" prefHeight="31.0" prefWidth="102.0" style="-fx-font-weight: bold;" text="Start" />
+      <Button layoutX="139.0" layoutY="275.0" mnemonicParsing="false" onAction="#onStopClick" prefHeight="31.0" prefWidth="102.0" style="-fx-font-weight: bold;" text="Stop" />
+      <Label layoutX="337.0" layoutY="413.0" prefHeight="27.0" prefWidth="227.0" style="-fx-font-weight: bold;" text="Developed by Addict You.">
+         <font>
+            <Font name="Book Antiqua Bold" size="18.0" />
+         </font></Label>
+      <Label layoutX="337.0" layoutY="95.0" style="-fx-font-weight: bold;" text="Current status: " />
+      <Label fx:id="statusId" layoutX="450.0" layoutY="95.0" style="-fx-text-fill: red; -fx-font-weight: bold;" text="Offline" />
+      <Label fx:id="counter" layoutX="445.0" layoutY="162.0" text="0" />
+      <ListView fx:id="listView" layoutX="523.0" layoutY="157.0" prefHeight="213.0" prefWidth="365.0" />
+      <Label layoutX="291.0" layoutY="162.0" text="Online Players Count: ">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Label>
+      <Label layoutX="291.0" layoutY="195.0" text="Max in current session: ">
+      	<font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Label>
+      <Label fx:id="maxCount" layoutX="459.0" layoutY="195.0" text="0" />
+   </children>
+</AnchorPane>
