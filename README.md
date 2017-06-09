@@ -2,7 +2,10 @@
 
 This tool is built using JavaFx 2.0.
 
-Mandatory - Java 8
+Prerequisites:
+1. Java 8
+2. Scene Builder installation
+3. Eclipse with JavaFx installed.
 
 Edit the config file and make necessary changes to read the log path and set connect to MySQL database.
 
