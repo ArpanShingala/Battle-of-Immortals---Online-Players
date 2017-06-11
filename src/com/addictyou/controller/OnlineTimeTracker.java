@@ -20,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.stage.Stage;
 
 public class OnlineTimeTracker {
 
@@ -41,9 +42,14 @@ public class OnlineTimeTracker {
     
     int playerCount = 0;
     int maxPlayerCount = 0;
+    boolean ind = false;
+    
+    static boolean wasStartClicked = false;
     
     @FXML
     void onStartClick(ActionEvent event) {
+    	wasStartClicked = true;
+
     	statusId.setText("Online");
     	statusId.setStyle("-fx-text-fill: green; -fx-font-weight: bold");
     	
@@ -66,8 +72,12 @@ public class OnlineTimeTracker {
     	statusId.setStyle("-fx-text-fill: red; -fx-font-weight: bold");
     	
     	tailer.stop();
+    	
+    	if(wasStartClicked == true){
+    		details.charOfflineAndCloseConnection();
+    	}
     }
-
+    
 	public class MyListener extends TailerListenerAdapter {
 
 		@Override
@@ -85,20 +95,30 @@ public class OnlineTimeTracker {
 					
 					AccountDetails account = details.getAccountDetails(roleId, accountId);
 					
-					String details = "RID: " + roleId + " AID: " + accountId + " Name: " + account.getCharacterName().trim();
+					String charDetails = "RID: " + roleId + " AID: " + accountId + " Name: " + account.getCharacterName().trim();
 					if(login){
 						playerCount++;
-						map.put(Integer.toString(roleId), details);
+						//map.put(Integer.toString(roleId), charDetails);
+						details.updatePlayerStatus(roleId, accountId, 1);
+						ind = true;
 					} else{
 						playerCount--;
-						map.remove(Integer.toString(roleId));
+						//map.remove(Integer.toString(roleId));
+						details.updatePlayerStatus(roleId, accountId, 0);
+						ind = false;
 					}
 					
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
 							counter.textProperty().bind(Bindings.format("%d", playerCount));
-							observableList.addAll(map.values());
+							if(ind){
+								observableList.add(charDetails);
+							} else{
+								observableList.remove(charDetails);
+							}
+							
+							//observableList.addAll(map.values());
 							if(playerCount > maxPlayerCount){
 								maxPlayerCount = playerCount;
 							}

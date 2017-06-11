@@ -12,30 +12,45 @@ import com.addictyou.model.AccountDetails;
 public class AccountDetailsDao {
 	
 	private String sql = "SELECT Name FROM basetab_sg WHERE RoleID = ? and AccountID = ?";
-	Connection connection = null;
-	PreparedStatement pstmt = null;
+	private String sql1 = "IF NOT EXISTS (SELECT * FROM PassportBOI.dbo.onlinePlayers WHERE rid = ? AND aid = ?) INSERT INTO PassportBOI.dbo.onlinePlayers (rid, aid, ind) VALUES (?,?,?)";
+	private String sql2 = "UPDATE PassportBOI.dbo.onlinePlayers SET ind = ?";
+	
+	Connection mysqlCon = null;
+	Connection sqlServerCon = null;
+	
+	PreparedStatement pstmtGetAccountData = null;
+	PreparedStatement pstmtUpdatePlayerStatus = null;
+	PreparedStatement pstmtCharsOffline = null;
 	
 	public void establishConnection(){
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 		} catch (ClassNotFoundException e) {
-			System.out.println("MySQL driver not found.");
+			System.out.println("MySQL/SQL server driver not found.");
 			e.printStackTrace();
 		}
 
 		try {
-			connection = DriverManager.getConnection("jdbc:mysql://" + Main.ip + ":" + Main.port + "/shengui",Main.id, Main.pass);
+			mysqlCon = DriverManager.getConnection("jdbc:mysql://" + Main.mysqlIp + ":" + Main.mysqlPort + "/" + Main.mysqlSchema,Main.mysqlId, Main.mysqlPass);
+			sqlServerCon = DriverManager.getConnection("jdbc:sqlserver://" + Main.sqlServerIp + ":" + Main.sqlServerPort + ";databaseName=" + Main.sqlServerSchema + ";user=" + Main.sqlServerId + ";password=" + Main.sqlServerPass);
 		} catch (SQLException e) {
 			System.out.println("Connection Failed.");
 			e.printStackTrace();
 		}
 
-		if (connection == null) {
-			System.out.println("Failed to establish connection.");
+		if (mysqlCon == null) {
+			System.out.println("Failed to establish MySQL connection.");
+		}
+		
+		if (sqlServerCon == null) {
+			System.out.println("Failed to establish SQL Server connection.");
 		}
 		
 		try {
-			pstmt = connection.prepareStatement(sql);
+			pstmtGetAccountData = mysqlCon.prepareStatement(sql);
+			pstmtUpdatePlayerStatus = sqlServerCon.prepareStatement(sql1);
+			pstmtCharsOffline = sqlServerCon.prepareStatement(sql2);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -44,10 +59,10 @@ public class AccountDetailsDao {
 	public AccountDetails getAccountDetails(int roleId, int accountId){
 		AccountDetails a = new AccountDetails();
 		try {
-			pstmt.setInt(1, roleId);
-			pstmt.setInt(2, accountId);
+			pstmtGetAccountData.setInt(1, roleId);
+			pstmtGetAccountData.setInt(2, accountId);
 			
-			ResultSet rs = pstmt.executeQuery();
+			ResultSet rs = pstmtGetAccountData.executeQuery();
 			
 			if(rs.next()){
 				a.setAccountId(Integer.toString(accountId));
@@ -59,5 +74,35 @@ public class AccountDetailsDao {
 		}
 		
 		return a;
+	}
+	
+	public void updatePlayerStatus(int roleId, int accountId, int status){
+		try {
+			pstmtUpdatePlayerStatus.setInt(1, roleId);
+			pstmtUpdatePlayerStatus.setInt(2, accountId);
+			pstmtUpdatePlayerStatus.setInt(3, roleId);
+			pstmtUpdatePlayerStatus.setInt(4, accountId);
+			pstmtUpdatePlayerStatus.setInt(5, status);
+			
+			pstmtUpdatePlayerStatus.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void charOfflineAndCloseConnection(){
+		try {
+			pstmtCharsOffline.setInt(1, 0);
+			pstmtCharsOffline.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			mysqlCon.close();
+			sqlServerCon.close();
+		} catch (SQLException e) {
+			// do nothing
+		}
 	}
 }
